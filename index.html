@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TFG: Control de Brazo Robótico Antropomórfico</title>
+  <link rel="stylesheet" href="styles.css">
+  <!-- Chart.js para las gráficas interactivas -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+  <!-- Encabezado Principal / Hero -->
+  <header class="hero">
+    <div class="hero-container">
+      <span class="badge">TRABAJO DE FIN DE GRADO</span>
+      <h1>CONTROL DE BRAZO ROBÓTICO MEDIANTE GUANTE SENSORIZADO</h1>
+      <p class="subtitle">Reproducción antropomórfica de movimientos en tiempo real mediante ESP32, Flex Sensors y MPU6050.</p>
+    </div>
+  </header>
+
+  <!-- Vídeo de Demostración -->
+  <section class="video-container-section">
+    <div class="container">
+      <div class="video-card">
+        <h3>Vídeo de Demostración del Sistema</h3>
+        <div class="video-wrapper">
+          <iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ" title="Demostración Brazo Robótico" allowfullscreen></iframe>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Layout Principal con Menú Lateral (Scrollspy) -->
+  <div class="layout-container container">
+    
+    <!-- Menú Índice Lateral Flotante -->
+    <aside class="sidebar">
+      <nav id="scrollspy-menu">
+        <p class="menu-title">ÍNDICE</p>
+        <ul>
+          <li><a href="#objetivos" class="nav-link active">01. Objetivos</a></li>
+          <li><a href="#planteamiento" class="nav-link">02. Planteamiento</a></li>
+          <li><a href="#diseno-brazo" class="nav-link">03. Diseño del Brazo</a></li>
+          <li><a href="#guante" class="nav-link">04. Guante Sensorizado</a></li>
+          <li><a href="#flex-sensor" class="nav-link">05. Flex Sensor</a></li>
+          <li><a href="#mpu6050" class="nav-link">06. IMU MPU6050</a></li>
+          <li><a href="#alimentacion" class="nav-link">07. Alimentación</a></li>
+          <li><a href="#bluetooth" class="nav-link">08. Comunicación BT</a></li>
+          <li><a href="#dificultades" class="nav-link">09. Dificultades y Soluciones</a></li>
+          <li><a href="#codigo" class="nav-link">10. Código Fuente</a></li>
+          <li><a href="#componentes" class="nav-link">11. Componentes y Costes</a></li>
+        </ul>
+      </nav>
+    </aside>
+
+    <!-- Contenido Principal -->
+    <main class="main-content">
+
+      <!-- 01. OBJETIVOS -->
+      <section id="objetivos" class="content-section">
+        <h2>01. Objetivos del Proyecto</h2>
+        <div class="grid-2">
+          <div class="card">
+            <h3>Objetivo General</h3>
+            <p>Reproducir los movimientos de la mano humana en un brazo robótico antropomórfico en tiempo real.</p>
+          </div>
+          <div class="card">
+            <h3>Objetivos Específicos</h3>
+            <ul>
+              <li><strong>Dedos:</strong> Captura y control individualizado de flexión y extensión.</li>
+              <li><strong>Muñeca:</strong> Control preciso del movimiento de rotación (pronación/supinación).</li>
+              <li><strong>Comunicación:</strong> Enlace inalámbrico robusto de baja latencia mediante Bluetooth.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- 02. PLANTEAMIENTO DEL SISTEMA -->
+      <section id="planteamiento" class="content-section">
+        <h2>02. Planteamiento del Sistema</h2>
+        <p>El sistema se estructura en un flujo continuo de tres etapas: captura, transmisión inalámbrica y reproducción del movimiento.</p>
+        <div class="flow-grid">
+          <div class="card flow-step">
+            <span class="step-num">1. CAPTURA</span>
+            <h4>Guante Sensorizado</h4>
+            <p>Flex Sensors capturan la flexión de los dedos. El módulo IMU MPU6050 mide la inclinación/rotación de la muñeca.</p>
+          </div>
+          <div class="flow-arrow">➔</div>
+          <div class="card flow-step">
+            <span class="step-num">2. TRANSMISIÓN</span>
+            <h4>Bluetooth SPP</h4>
+            <p>Conexión inalámbrica directa entre dos microcontroladores ESP32 a una frecuencia de 10 Hz (cada 100 ms).</p>
+          </div>
+          <div class="flow-arrow">➔</div>
+          <div class="card flow-step">
+            <span class="step-num">3. REPRODUCCIÓN</span>
+            <h4>Brazo Robótico</h4>
+            <p>5 servomotores mueven los dedos mediante hilos de tracción. 1 servomotor rotatorio actúa sobre la muñeca mediante engranajes.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- 03. DISEÑO MECÁNICO DEL BRAZO -->
+      <section id="diseno-brazo" class="content-section">
+        <h2>03. Diseño Mecánico del Brazo</h2>
+        <div class="grid-2">
+          <div class="card">
+            <h4>Estructura e Impresión 3D</h4>
+            <p>Se integró la estructura del antebrazo del proyecto <strong>InMoov</strong> combinada con la mano de modelo <strong>FlexyHand</strong>, seleccionada por ofrecer mayor resistencia mecánica y durabilidad en las articulaciones.</p>
+          </div>
+          <div class="card">
+            <h4>Puntos de Anclaje y Actuación</h4>
+            <p>Se diseñaron piezas 3D de acoplamiento a medida para fusionar ambas estructuras. Los dedos operan mediante hilos guiados conectados a 5 servos independientes, mientras que la muñeca utiliza un engranaje directo movido por el sexto servomotor.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- 04. GUANTE SENSORIZADO -->
+      <section id="guante" class="content-section">
+        <h2>04. Guante Sensorizado: Captura de Movimiento</h2>
+        <p>El guante concentra todos los elementos de adquisición de datos organizados compactamente sobre el dorso de la mano y la muñeca:</p>
+        <div class="grid-3">
+          <div class="card">
+            <h4>Flex Sensors</h4>
+            <p>Ubicados a lo largo de cada dedo para medir el grado de flexión articular.</p>
+          </div>
+          <div class="card">
+            <h4>MPU6050</h4>
+            <p>Situado en la muñeca para determinar la orientación angular de la mano.</p>
+          </div>
+          <div class="card">
+            <h4>Caja Electrónica</h4>
+            <p>Alberga el microcontrolador ESP32-WROOM-32D, la PCB personalizada y la batería de alimentación.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- 05. SENSOR DE FLEXIÓN -->
+      <section id="flex-sensor" class="content-section">
+        <h2>05. Sensor de Flexión: Lectura y Conversión</h2>
+        <p>Los sensores varían su resistencia al doblarse. Mediante un circuito divisor de tensión, convertimos esta variación de resistencia en un voltaje analógico leído por el ADC del ESP32.</p>
+        <div class="grid-2">
+          <div class="card">
+            <h4>Ecuación de Conversión (`map`)</h4>
+            <p>Convertimos los valores analógicos brutos (ADC) a ángulos entre 180° y 0° mediante mapeo lineal:</p>
+            <pre><code>int angle = map(flexADC, minFlex, maxFlex, 180, 0);</code></pre>
+          </div>
+          <div class="card">
+            <h4>Gráfica de Respuesta ADC vs. Ángulo</h4>
+            <canvas id="chartFlex" height="150"></canvas>
+          </div>
+        </div>
+      </section>
+
+      <!-- 06. IMU MPU6050 -->
+      <section id="mpu6050" class="content-section">
+        <h2>06. Unidad de Medida Inercial: MPU6050</h2>
+        <p>El giroscopio sufre de deriva con el tiempo y el acelerómetro presenta ruido por vibraciones. Implementamos un <strong>Filtro Complementario</strong> para combinar la precisión de ambos en tiempo real.</p>
+        <div class="card formula-box">
+          <p><strong>Fórmula del Filtro Complementario:</strong></p>
+          <code>Roll = 0.98 * (Roll + GyroX * dt) + 0.02 * AccelRoll</code>
+        </div>
+        <div class="card" style="margin-top:1rem;">
+          <h4>Comparativa: Deriva vs. Filtro Complementario</h4>
+          <canvas id="chartIMU" height="150"></canvas>
+        </div>
+      </section>
+
+      <!-- 07. ALIMENTACIÓN -->
+      <section id="alimentacion" class="content-section">
+        <h2>07. Esquema de Alimentación</h2>
+        <div class="grid-3">
+          <div class="card">
+            <h4>Guante</h4>
+            <p>Alimentado de forma autónoma mediante una batería recargable de 9V conectada al ESP32.</p>
+          </div>
+          <div class="card">
+            <h4>Microcontrolador Brazo</h4>
+            <p>Alimentado por 2 pilas 18650 en serie (6.4V - 7.4V) aisladas eléctricamente.</p>
+          </div>
+          <div class="card">
+            <h4>Servomotores</h4>
+            <p>Fuente de alimentación externa regulada a 6.4V para soportar picos de corriente elevados.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- 08. COMUNICACIÓN BLUETOOTH -->
+      <section id="bluetooth" class="content-section">
+        <h2>08. Comunicación Bluetooth SPP</h2>
+        <div class="card">
+          <ul>
+            <li><strong>Protocolo:</strong> Bluetooth SPP (Serial Port Profile) con arquitectura Cliente (Guante) ➔ Servidor (Brazo).</li>
+            <li><strong>Enlace:</strong> Conexión directa automática reconociendo la dirección MAC física del dispositivo receptor.</li>
+            <li><strong>Frecuencia:</strong> Trama transmitida cada 100 ms (10 Hz) para evitar saturación del canal.</li>
+            <li><strong>Formato de Trama:</strong> <code>&lt;flex1&gt; &lt;flex2&gt; &lt;flex3&gt; &lt;flex4&gt; &lt;flex5&gt; &lt;roll_servo&gt;</code></li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- 09. DIFICULTADES Y SOLUCIONES -->
+      <section id="dificultades" class="content-section">
+        <h2>09. Dificultades Encontradas y Soluciones</h2>
+        <div class="grid-3">
+          <div class="card solution-card">
+            <span class="icon">⚡</span>
+            <h4>Interferencias en Servos</h4>
+            <p><strong>Problema:</strong> Los picos de corriente reseteaban el ESP32.</p>
+            <p><strong>Solución:</strong> Separación estricta de las líneas de alimentación entre lógica y actuadores.</p>
+          </div>
+          <div class="card solution-card">
+            <span class="icon">🌀</span>
+            <h4>Deriva y Saltos de Ángulo</h4>
+            <p><strong>Problema:</strong> Descontinuidad en la lectura MPU6050 al rotar ±180°.</p>
+            <p><strong>Solución:</strong> Aplicación de Filtro Complementario y algoritmo de unwrapping.</p>
+          </div>
+          <div class="card solution-card">
+            <span class="icon">🖐️</span>
+            <h4>Rigidez en Bisagras</h4>
+            <p><strong>Problema:</strong> El filamento rígido impedía doblar los dedos con fluidez.</p>
+            <p><strong>Solución:</strong> Reimpresión articular en filamento flexible TPU con menor relleno.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- 10. CÓDIGO FUENTE -->
+      <section id="codigo" class="content-section">
+        <h2>10. Código Fuente Principal (ESP32 Receptora)</h2>
+        <div class="card code-card">
+          <div class="code-header">
+            <span>receptor_brazo.ino</span>
+            <button class="btn-copy" onclick="copyCode()">Copiar Código</button>
+          </div>
+          <pre><code id="codeBlock">#include &lt;BluetoothSerial.h&gt;
+#include &lt;ESP32Servo.h&gt;
+
+BluetoothSerial SerialBT;
+Servo servos[5];
+Servo wristServo;
+
+const int servoPins[5] = {13, 12, 14, 27, 26};
+const int wristPin = 25;
+
+void setup() {
+  Serial.begin(115200);
+  SerialBT.begin("ESP32_Brazo_Receptor");
+  
+  for(int i = 0; i < 5; i++) {
+    servos[i].attach(servoPins[i]);
+  }
+  wristServo.attach(wristPin);
+}
+
+void loop() {
+  if (SerialBT.available()) {
+    String data = SerialBT.readStringUntil('\n');
+    int f1, f2, f3, f4, f5, wrist;
+    if (sscanf(data.c_str(), "%d %d %d %d %d %d", &f1, &f2, &f3, &f4, &f5, &wrist) == 6) {
+      servos[0].write(f1);
+      servos[1].write(f2);
+      servos[2].write(f3);
+      servos[3].write(f4);
+      servos[4].write(f5);
+      wristServo.write(wrist);
+    }
+  }
+}</code></pre>
+        </div>
+      </section>
+
+      <!-- 11. COMPONENTES Y COSTES -->
+      <section id="componentes" class="content-section">
+        <h2>11. Componentes y Presupuesto</h2>
+        <div class="card">
+          <div class="table-controls">
+            <input type="text" id="searchInput" onkeyup="filterComponents()" placeholder="Buscar componente por nombre...">
+          </div>
+          <div class="table-responsive">
+            <table id="componentsTable">
+              <thead>
+                <tr>
+                  <th>Componente</th>
+                  <th>Cantidad</th>
+                  <th>Precio Unitario (€)</th>
+                  <th>Total (€)</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Microcontrolador ESP32-WROOM-32D</td>
+                  <td>2</td>
+                  <td>6.50</td>
+                  <td>13.00</td>
+                </tr>
+                <tr>
+                  <td>Flex Sensors 2.2"</td>
+                  <td>5</td>
+                  <td>12.00</td>
+                  <td>60.00</td>
+                </tr>
+                <tr>
+                  <td>Módulo IMU MPU6050</td>
+                  <td>1</td>
+                  <td>3.50</td>
+                  <td>3.50</td>
+                </tr>
+                <tr>
+                  <td>Servomotores MG996R (Torque Alto)</td>
+                  <td>6</td>
+                  <td>7.80</td>
+                  <td>46.80</td>
+                </tr>
+                <tr>
+                  <td>Filamento PLA / TPU (Bobinas 1kg)</td>
+                  <td>2</td>
+                  <td>20.00</td>
+                  <td>40.00</td>
+                </tr>
+                <tr>
+                  <td>Baterías 18650 + Pila 9V con portapilas</td>
+                  <td>1</td>
+                  <td>15.00</td>
+                  <td>15.00</td>
+                </tr>
+                <tr>
+                  <td>PCB Personalizada + CABLES / Resistencias</td>
+                  <td>1</td>
+                  <td>10.00</td>
+                  <td>10.00</td>
+                </tr>
+              </tbody>
+              <tfoot>
+                <tr class="total-row">
+                  <td colspan="3"><strong>Coste Total Estimado</strong></td>
+                  <td id="grandTotal"><strong>188.30 €</strong></td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
