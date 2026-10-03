@@ -3,14 +3,14 @@ document.addEventListener('DOMContentLoaded', () => {
   initCharts();
 });
 
-/* 1. Menú Scrollspy: Detecta la sección activa al hacer scroll */
+/* Scrollspy per al menú lateral */
 function initScrollspy() {
   const sections = document.querySelectorAll('.content-section');
   const navLinks = document.querySelectorAll('.nav-link');
 
   const observerOptions = {
     root: null,
-    rootMargin: '-20% 0px -70% 0px',
+    rootMargin: '-20% 0px -65% 0px',
     threshold: 0
   };
 
@@ -31,19 +31,17 @@ function initScrollspy() {
   sections.forEach(section => observer.observe(section));
 }
 
-/* 2. Copiar código al portapapeles */
+/* Copiar codi */
 function copyCode() {
   const code = document.getElementById('codeBlock').innerText;
   navigator.clipboard.writeText(code).then(() => {
     const btn = document.querySelector('.btn-copy');
     btn.textContent = '¡Copiado!';
-    setTimeout(() => {
-      btn.textContent = 'Copiar Código';
-    }, 2000);
+    setTimeout(() => btn.textContent = 'Copiar Código', 2000);
   });
 }
 
-/* 3. Buscador en tiempo real de la Tabla de Componentes */
+/* Filtre de la taula de components */
 function filterComponents() {
   const input = document.getElementById('searchInput');
   const filter = input.value.toLowerCase();
@@ -59,30 +57,26 @@ function filterComponents() {
   }
 }
 
-/* 4. Inicialización de Gráficas interactivas con Chart.js */
+/* Gràfiques interactives */
 function initCharts() {
-  // Gráfica Flex Sensor
+  // Flex Sensor Chart
   const ctxFlex = document.getElementById('chartFlex').getContext('2d');
   new Chart(ctxFlex, {
     type: 'line',
     data: {
-      labels: ['0° (Plano)', '45°', '90°', '135°', '180° (Doblado)'],
+      labels: ['0°', '45°', '90°', '135°', '180°'],
       datasets: [{
-        label: 'Lectura ADC (Bits)',
+        label: 'Lectura ADC',
         data: [2400, 2150, 1900, 1650, 1400],
-        borderColor: '#2563eb',
-        backgroundColor: 'rgba(37, 99, 235, 0.1)',
-        fill: true,
-        tension: 0.2
+        borderColor: '#8b0000',
+        backgroundColor: 'rgba(139, 0, 0, 0.1)',
+        fill: true
       }]
     },
-    options: {
-      responsive: true,
-      plugins: { legend: { display: true } }
-    }
+    options: { responsive: true }
   });
 
-  // Gráfica MPU6050
+  // MPU6050 Chart
   const ctxIMU = document.getElementById('chartIMU').getContext('2d');
   new Chart(ctxIMU, {
     type: 'line',
@@ -90,23 +84,19 @@ function initCharts() {
       labels: ['0s', '2s', '4s', '6s', '8s', '10s'],
       datasets: [
         {
-          label: 'Giroscopio (con Deriva)',
-          data: [0, -0.5, -1.2, -1.8, -2.5, -3.1],
-          borderColor: '#ef4444',
-          borderDash: [5, 5],
-          fill: false
+          label: 'Giroscopi pur (Deriva acumulada)',
+          data: [0, -0.6, -1.3, -2.1, -2.9, -3.8],
+          borderColor: '#d97706',
+          borderDash: [4, 4]
         },
         {
-          label: 'Filtro Complementario',
-          data: [0, 0.1, 0.25, 0.2, 0.3, 0.28],
-          borderColor: '#10b981',
-          fill: false
+          label: 'Filtre Complementari (Estable)',
+          data: [0, 0.1, 0.2, 0.15, 0.25, 0.22],
+          borderColor: '#1e5631',
+          borderWidth: 2
         }
       ]
     },
-    options: {
-      responsive: true,
-      plugins: { legend: { display: true } }
-    }
+    options: { responsive: true }
   });
 }
