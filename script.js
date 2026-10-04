@@ -3,14 +3,14 @@ document.addEventListener('DOMContentLoaded', () => {
   initCharts();
 });
 
-/* Scrollspy per al menú lateral */
+/* Scrollspy for persistent sidebar menu */
 function initScrollspy() {
   const sections = document.querySelectorAll('.content-section');
   const navLinks = document.querySelectorAll('.nav-link');
 
   const observerOptions = {
     root: null,
-    rootMargin: '-20% 0px -65% 0px',
+    rootMargin: '-20% 0px -60% 0px',
     threshold: 0
   };
 
@@ -31,17 +31,17 @@ function initScrollspy() {
   sections.forEach(section => observer.observe(section));
 }
 
-/* Copiar codi */
+/* Copy Code Functionality */
 function copyCode() {
   const code = document.getElementById('codeBlock').innerText;
   navigator.clipboard.writeText(code).then(() => {
     const btn = document.querySelector('.btn-copy');
-    btn.textContent = '¡Copiado!';
-    setTimeout(() => btn.textContent = 'Copiar Código', 2000);
+    btn.textContent = 'Copied!';
+    setTimeout(() => btn.textContent = 'Copy Code', 2000);
   });
 }
 
-/* Filtre de la taula de components */
+/* Filter Components Table */
 function filterComponents() {
   const input = document.getElementById('searchInput');
   const filter = input.value.toLowerCase();
@@ -57,7 +57,7 @@ function filterComponents() {
   }
 }
 
-/* Gràfiques interactives */
+/* Interactive Charts */
 function initCharts() {
   // Flex Sensor Chart
   const ctxFlex = document.getElementById('chartFlex').getContext('2d');
@@ -66,14 +66,18 @@ function initCharts() {
     data: {
       labels: ['0°', '45°', '90°', '135°', '180°'],
       datasets: [{
-        label: 'Lectura ADC',
+        label: 'ADC Value',
         data: [2400, 2150, 1900, 1650, 1400],
-        borderColor: '#8b0000',
-        backgroundColor: 'rgba(139, 0, 0, 0.1)',
-        fill: true
+        borderColor: '#1a1918',
+        backgroundColor: 'rgba(26, 25, 24, 0.08)',
+        fill: true,
+        tension: 0.2
       }]
     },
-    options: { responsive: true }
+    options: {
+      responsive: true,
+      plugins: { legend: { display: false } }
+    }
   });
 
   // MPU6050 Chart
@@ -84,19 +88,24 @@ function initCharts() {
       labels: ['0s', '2s', '4s', '6s', '8s', '10s'],
       datasets: [
         {
-          label: 'Giroscopi pur (Deriva acumulada)',
+          label: 'Raw Gyroscope (Accumulated Drift)',
           data: [0, -0.6, -1.3, -2.1, -2.9, -3.8],
-          borderColor: '#d97706',
-          borderDash: [4, 4]
+          borderColor: '#888888',
+          borderDash: [4, 4],
+          fill: false
         },
         {
-          label: 'Filtre Complementari (Estable)',
+          label: 'Complementary Filter (Filtered Angle)',
           data: [0, 0.1, 0.2, 0.15, 0.25, 0.22],
-          borderColor: '#1e5631',
-          borderWidth: 2
+          borderColor: '#000000',
+          borderWidth: 2,
+          fill: false
         }
       ]
     },
-    options: { responsive: true }
+    options: {
+      responsive: true,
+      plugins: { legend: { position: 'top' } }
+    }
   });
 }
