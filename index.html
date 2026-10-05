@@ -1,441 +1,329 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ca">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sensorized Glove Controlled Robotic Arm</title>
-  <link rel="stylesheet" href="styles.css">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Braç robòtic controlat amb guant sensoritzat | ML Portfolio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Inter+Tight:wght@700;800&family=JetBrains+Mono:wght@400;500;700&family=Merriweather:wght@700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" defer></script>
+<script src="script.js" defer></script>
 </head>
 <body>
+<div id="progress"></div>
+<header class="nav">
+  <a href="../index.html" class="logo">ML // Portfolio</a>
+  <a href="../index.html" class="btn">&larr; Projectes</a>
+</header>
 
-  <!-- Fullscreen Hero Section -->
-  <header class="hero-fullscreen">
-    <div class="hero-content">
-      <span class="hero-tag">EMBEDDED // FIRMWARE & HARDWARE</span>
-      <h1 class="main-title">SENSORIZED GLOVE CONTROLLED ROBOTIC ARM</h1>
-      <p class="main-subtitle">Real-time anthropomorphic movement replication using ESP32, Flex Sensors, and MPU6050</p>
-      
-      <div class="video-container">
-        <iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ" title="Robotic Arm Demo" allowfullscreen></iframe>
+<header class="hero">
+  <h1>Braç robòtic antropomòrfic controlat amb un guant sensoritzat</h1>
+  <p class="sub">Un braç imprès en 3D que reprodueix la flexió dels dits i la rotació del canell d'una mà humana. Un guant amb sensors de flexió i una IMU MPU6050 capta el moviment, i dos ESP32 el transmeten per Bluetooth als servos del braç.</p>
+  <div class="vid card">
+    <h2 class="vt">Vídeo de demostració del sistema</h2>
+    <div class="vwrap">
+      <video controls preload="metadata" poster="img/sistema.jpg"><source src="demo.mp4" type="video/mp4"></video>
+      <div class="vmiss" hidden>Afegeix el vídeo com a <code>demo.mp4</code> al costat d'aquest arxiu</div>
+    </div>
+  </div>
+</header>
+
+<div class="layout">
+<aside class="side">
+  <nav class="side-in" aria-label="Índex del projecte">
+    <span class="mono">Índex</span>
+    <a href="#objectius" class="active"><i>01</i>Descripció i objectius del projecte</a>
+    <a href="#sistema"><i>02</i>Plantejament general del sistema</a>
+    <a href="#disseny"><i>03</i>Disseny i estructura del braç robòtic</a>
+    <a href="#guant"><i>04</i>Disseny i integració del guant de control</a>
+    <a href="#flex"><i>05</i>Sensor de flexió: flexió-extensió dels dits</a>
+    <a href="#imu"><i>06</i>IMU MPU6050: rotació del canell</a>
+    <a href="#pcb"><i>07</i>Disseny i fabricació de les plaques</a>
+    <a href="#bluetooth"><i>08</i>Comunicació i protocol Bluetooth</a>
+    <a href="#material"><i>09</i>Llista de materials i pressupost</a>
+  </nav>
+</aside>
+
+<main class="main">
+
+<section id="objectius">
+  <h2>01. Descripció i objectius del projecte</h2>
+  <p class="lead">Aquest projecte presenta el disseny, la construcció i el control d'un braç robòtic antropomòrfic accionat per un guant sensoritzat. El sistema reprodueix els moviments de la mà humana, en concret la flexió dels dits i la rotació del canell, amb sensors de baix cost i microcontroladors comercials.</p>
+  <p>Integra mecànica, electrònica i programació, i posa l'accent en els problemes pràctics que apareixen en implementar un sistema real. Més que obtenir un sistema que funcioni, el treball analitza les decisions de disseny, les limitacions que han sorgit i les solucions adoptades.</p>
+  <p>S'emmarca en les interfícies persona-màquina i la robòtica assistencial. És un prototip experimental que pot servir de base per a aplicacions de rehabilitació motora, entrenament o teleoperació, on una interfície natural redueix la corba d'aprenentatge. El projecte també vol demostrar que es poden fer sistemes de control biomèdic funcionals amb components comercials de baix cost, sempre que s'acompanyin d'una caracterització i una validació adequades.</p>
+  <figure class="card fig wide"><img class="zoom" src="img/sistema.jpg" alt="Guant, braç robòtic i font d'alimentació"><figcaption class="mono">El sistema complet: el guant a l'esquerra i el braç amb la seva caixa i la font a la dreta.</figcaption></figure>
+
+  <h3>Objectiu general</h3>
+  <p>Dissenyar, implementar i validar un braç robòtic antropomòrfic fabricat amb impressió 3D, juntament amb el seu sistema de control mitjançant un guant sensoritzat, per reproduir els moviments bàsics de la mà humana: la flexió i l'extensió dels dits i la rotació del canell.</p>
+  <h3>Objectius específics</h3>
+  <ol class="obj">
+    <li>Dissenyar un guant sensoritzat que capti la flexió dels dits amb sensors de flexió i l'orientació del canell amb una unitat de mesura inercial (IMU).</li>
+    <li>Implementar un sistema electrònic amb microcontroladors comercials que adquireixi i processi els senyals dels sensors.</li>
+    <li>Dissenyar i controlar un braç robòtic accionat per servomotors, capaç de reproduir els moviments captats pel guant.</li>
+    <li>Desenvolupar el programari que llegeix, processa i converteix els senyals dels sensors en ordres per als actuadors, incloent-hi la caracterització dels sensors de flexió.</li>
+    <li>Establir una comunicació fiable entre el guant i el braç.</li>
+    <li>Avaluar el funcionament global del sistema i analitzar-ne les limitacions.</li>
+  </ol>
+  <h3>Abast i limitacions</h3>
+  <div class="acc open"><button class="acc-h">Què inclou el projecte</button><div class="acc-b"><div>
+    <p>El braç té els graus de llibertat justos per flexionar els dits i girar el canell. Les plaques de circuit imprès es van dissenyar, fabricar i muntar durant el propi projecte, per organitzar les connexions dels sensors. Quant al programari, es limita a algorismes de control bàsics i a la visualització dels moviments.</p>
+  </div></div></div>
+  <div class="acc"><button class="acc-h">Què no inclou</button><div class="acc-b"><div>
+    <p>No reprodueix l'abducció ni l'adducció dels dits, ni la rotació completa de l'avantbraç. Tampoc usa control adaptatiu, aprenentatge automàtic ni processament avançat de senyals biomèdics.</p>
+  </div></div></div>
+  <div class="acc"><button class="acc-h">Restriccions que han condicionat el disseny</button><div class="acc-b"><div>
+    <p><b>Econòmiques:</b> el pressupost va limitar els materials i components a solucions comercials de baix cost.</p>
+    <p><b>Mecàniques:</b> les peces impreses ja tenien mides i formes establertes que encaixaven entre si, amb poc marge en el muntatge, i calia molta exactitud en alinear-les.</p>
+    <p><b>D'alimentació:</b> el consum elevat dels servomotors va obligar a usar una font externa independent de la del microcontrolador, cosa que va afegir complexitat al cablejat.</p>
+  </div></div></div>
+</section>
+
+<section id="sistema">
+  <h2>02. Plantejament general del sistema</h2>
+  <p class="lead">Perquè el braç copiï la meva mà calen sensors que captin els moviments, un enllaç sense fils que enviï les dades i uns actuadors que els reprodueixin. El sistema es divideix en dos nodes: el guant, que capta, i el braç, que actua.</p>
+  <div class="pipe">
+    <div class="col">
+      <h3>Captura al guant</h3>
+      <figure class="card mini"><img class="zoom" src="img/flex.jpg" alt="Sensor de flexió"><h4>Sensors de flexió</h4><p>Un per dit. Mesuren la flexió i l'extensió.</p></figure>
+      <figure class="card mini"><img class="zoom" src="img/imu.jpg" alt="IMU MPU6050"><h4>IMU MPU6050</h4><p>Mesura la rotació del canell.</p></figure>
+    </div>
+    <div class="arrow" aria-hidden="true">&rarr;</div>
+    <div class="col mid">
+      <h3>Transmissió</h3>
+      <div class="card"><h4>Bluetooth</h4><p>Un microcontrolador de la família ESP32 processa les lectures i les envia. Un segon ESP32 les rep al braç. No hi ha cap cable entre el guant i el braç.</p></div>
+    </div>
+    <div class="arrow" aria-hidden="true">&rarr;</div>
+    <div class="col">
+      <h3>Reproducció al braç</h3>
+      <figure class="card mini"><img class="zoom" src="img/servo-hilo.jpg" alt="Servos amb fil"><h4>5 servos amb fil</h4><p>Cada servo va lligat a un fil connectat a l'articulació d'un dit. En girar, replega el fil i el dit es plega.</p></figure>
+      <figure class="card mini"><img class="zoom" src="img/servo-engranajes.jpg" alt="Servo del canell amb engranatges"><h4>1 servo amb engranatges</h4><p>El sisè servo transmet el seu gir al canell mitjançant engranatges.</p></figure>
+    </div>
+  </div>
+  <h3>Funcionament global</h3>
+  <ol class="obj">
+    <li>El guant llegeix els sensors de flexió i la IMU, i filtra els senyals.</li>
+    <li>Els valors resultants s'empaqueten en una sola trama i s'envien per Bluetooth al braç.</li>
+    <li>El braç rep la trama, n'extreu els valors i actualitza la consigna del servo de cada dit i del canell.</li>
+  </ol>
+  <p>Aquesta arquitectura modular separa responsabilitats i facilita la depuració, perquè es pot comprovar cada node per separat. També permet afegir sensors o canviar el mètode de comunicació sense modificar la resta del sistema.</p>
+</section>
+
+<section id="disseny">
+  <h2>03. Disseny i estructura del braç robòtic</h2>
+  <p class="lead">El braç es va construir combinant dos projectes oberts d'impressió 3D i redissenyant la peça que els uneix. Clica cada pas per veure'n els detalls.</p>
+  <div class="mech">
+    <button class="mc on" data-i="0"><span class="pillt">01. Base inicial</span><h4>Antebraç InMoov</h4><p>Model escollit per a l'estructura de l'antebraç. Treballs anteriors van advertir que la <b>mà d'InMoov fallava</b> amb l'ús continuat.</p><img src="img/mec-1.png" alt="Peces de l'antebraç InMoov"></button>
+    <button class="mc" data-i="1"><span class="pillt">02. Selecció de la mà</span><h4>Mà FlexyHand</h4><p>Recerca d'una alternativa <b>menys complexa i més sòlida</b>. FlexyHand ofereix més resistència mecànica i durabilitat articular.</p><img src="img/mec-2.png" alt="Mà FlexyHand impresa en 3D"></button>
+    <button class="mc" data-i="2"><span class="pillt">03. Redisseny CAD</span><h4>Punts d'ancoratge</h4><p>Modelatge 3D de peces d'acoblament a mida per <b>fusionar la mà</b> FlexyHand amb l'estructura de l'antebraç InMoov.</p><img src="img/mec-3.png" alt="Redisseny de la mà a Fusion 360"></button>
+    <button class="mc" data-i="3"><span class="pillt">04. Resultat</span><h4>Braç ensamblat</h4><p>Impressió 3D i integració final del conjunt, aconseguint un <b>sistema robust, funcional</b> i durador per al projecte.</p><img src="img/mec-4.png" alt="Braç ensamblat"></button>
+  </div>
+  <div class="mdet card" id="mdet" aria-live="polite"></div>
+</section>
+
+<section id="guant">
+  <h2>04. Disseny i integració del guant de control</h2>
+  <p class="lead">El guant és la part que capta el moviment. Passa el ratolí o clica sobre cada etiqueta per veure què fa cada element.</p>
+  <div class="co2" id="glove"><img class="zoom" src="img/guante-caja.jpg" alt="Guant sensoritzat amb la caixa d'electrònica"></div>
+  <div class="card" data-tabs style="margin-top:1.4rem">
+    <div class="tabs">
+      <button class="tab on" data-k="flex">Sensors de flexió</button>
+      <button class="tab" data-k="imu">IMU MPU6050</button>
+      <button class="tab" data-k="caixa">Caixa d'electrònica</button>
+    </div>
+    <div class="tp on" data-p="flex"><p>Cinc sensors de flexió, un sobre cada dit, mesuren la flexió i l'extensió. Es col·loquen al guant de manera que el sensor es doblegui amb el dit. Han d'anar ben fixats però flexibles: amb alguns adhesius habituals el sensor quedava rígid en eixugar-se i ja no es doblegava correctament.</p></div>
+    <div class="tp" data-p="imu"><p>La IMU MPU6050 va a la zona del canell i registra la seva rotació. S'alimenta a 5 V directament des de la placa, perquè el mòdul GY-521 porta un regulador intern que dona els 3,3 V que necessita el sensor. Inicialment es volia alimentar des de la PCB del guant, però hi va haver problemes de connexió.</p></div>
+    <div class="tp" data-p="caixa"><p>L'electrònica, amb el microcontrolador, la bateria i la PCB, va en una caixa a l'avantbraç, fixada amb velcro. Té una obertura per al cablejat del guant i dues per al connector d'alimentació, de manera que es pot connectar i desconnectar sense obrir-la. La bateria és una pila recarregable de Li-ion de 5500 mAh que fa de font de 9 V. Durant el prototipat el cablejat queda a la vista per poder depurar-lo amb facilitat.</p></div>
+  </div>
+</section>
+
+<section id="flex">
+  <h2>05. Sensor de flexió: flexió-extensió dels dits</h2>
+  <p class="lead">Per mesurar com es plega cada dit s'usa un sensor de flexió resistiu. El microcontrolador no pot llegir resistències, així que cal convertir-la en una tensió i, després, en un número.</p>
+
+  <h3>Com funciona el sensor</h3>
+  <div class="grid2">
+    <figure class="card fig"><img class="zoom" src="img/flex-doblar.jpg" alt="Resistència del flex sensor en plegar-se"><figcaption class="mono">En plegar-se, la resistència puja: entre 17,5 i 32,5 kΩ en pla i, a 180°, almenys el doble.</figcaption></figure>
+    <figure class="card fig"><img class="zoom" src="img/flex.jpg" alt="Flex sensor"><figcaption class="mono">Spectra Symbol FS-L-0055-253-ST: 25 kΩ en pla, 55 mm actius.</figcaption></figure>
+  </div>
+  <p>És un sensor resistiu lineal de la sèrie Flex Sensor de Spectra Symbol. Com més es doblega, més augmenta la seva resistència, de manera que aquesta indica el grau de flexió del dit. Té limitacions: el comportament difereix d'un sensor a un altre, depèn de com se subjecta al guant i és sensible al soroll. Per això cada sensor es caracteritza per separat.</p>
+
+  <h3>De resistència a tensió: el divisor de tensió</h3>
+  <div class="grid2 mid-al">
+    <div>
+      <p>L'ESP32 mesura tensions entre 0 i 3,3 V, no resistències. Per això cada sensor forma un divisor de tensió amb una resistència fixa de 47 kΩ. El sensor va a la part de dalt i la resistència fixa a la de baix; la tensió es pren al punt central.</p>
+      <p class="eq">Vout = Vin · Rfix / (Rfix + Rflex)</p>
+      <p>Quan el dit es plega, Rflex puja i Vout baixa.</p>
+    </div>
+    <figure class="card fig"><img class="zoom" src="img/divisor.jpg" alt="Divisor de tensió amb el flex sensor"></figure>
+  </div>
+
+  <h3>De tensió a número: l'ADC</h3>
+  <p>L'ESP32 té un convertidor analògic-digital (ADC) de 12 bits, que transforma cada tensió entre 0 i 3,3 V en un número entre 0 i 4095. Aquest número és el que llegeix el programa.</p>
+  <p class="eq">ADC = Vout / 3,3 · 4095</p>
+
+  <h3>Quina resistència fixa triar</h3>
+  <div class="grid2 mid-al">
+    <p>Primer es va usar una resistència de 10 kΩ. Funcionava, però el senyal ocupava un rang petit: entre 150 i 460 unitats de l'ADC, una variació d'uns 310 punts. SparkFun recomana 47 kΩ per a aquests sensors. Amb aquest valor la lectura va d'unes 1600 a 2300, una variació d'uns 700 punts. Un rang més ampli distingeix millor els canvis petits i dona un control més progressiu del servo, per això es va triar 47 kΩ.</p>
+    <div class="card"><canvas id="c-rf" aria-label="Rang de l'ADC amb 10 kΩ i amb 47 kΩ"></canvas></div>
+  </div>
+
+  <h3>Caracterització: la relació entre angle i lectura és una recta</h3>
+  <p>Per a cada sensor es va fixar el dit a 0°, 45°, 90°, 135° i 180° i es va anotar la lectura de l'ADC. Els punts s'alineen aproximadament en una recta, sense salts ni saturacions. Encara que físicament el sensor no és perfectament lineal, la dispersió és prou petita per aproximar-lo amb una recta dins del rang de treball.</p>
+  <div class="grid2">
+    <div class="card"><canvas id="chart" aria-label="Lectura ADC segons l'angle"></canvas><p class="mono" style="margin-top:.8rem">Lectura de l'ADC segons l'angle del dit.</p></div>
+    <div class="card">
+      <div class="tabs" id="ctabs"><button class="tab on" data-k="r">Resistència</button><button class="tab" data-k="v">Tensió</button></div>
+      <canvas id="c-multi" aria-label="Resistència i tensió segons l'angle"></canvas><p class="mono" style="margin-top:.8rem">Dades de la taula de caracterització.</p>
+    </div>
+  </div>
+
+  <h3>De lectura a angle: la funció map()</h3>
+  <div class="grid2 mid-al">
+    <div>
+      <p>Com que la relació és una recta, l'angle del servo s'obté per interpolació lineal amb la funció <code>map()</code> d'Arduino. Només cal conèixer la lectura amb el dit estès (maxFlex) i la lectura amb la màxima flexió (minFlex). Per recaracteritzar un sensor n'hi ha prou de canviar aquests dos valors.</p>
+      <p class="eq">angle = map(flex, minFlex, maxFlex, 180, 0)</p>
+    </div>
+    <div class="card">
+      <h4>Prova-ho amb el dit índex</h4>
+      <p class="mono">minFlex 1530 · maxFlex 2100</p>
+      <input type="range" id="adc" min="1530" max="2100" value="2100" aria-label="Lectura ADC">
+      <p class="mono">Lectura ADC: <b id="adc-v"></b> &rarr; angle del servo: <b id="adc-a"></b>°</p>
+    </div>
+  </div>
+
+  <h3>Calibratge dels cinc sensors</h3>
+  <p>Els cinc sensors es van caracteritzar un per un, per les diferències que hi ha entre ells i per la seva posició al guant. Cadascun té el seu rang d'ADC, de la màxima flexió al dit estès, i aquests valors són els límits del mapeig.</p>
+  <div class="card"><canvas id="c-cal" aria-label="Rang de calibratge de cada dit"></canvas></div>
+
+  <h3>Filtratge i seguretat</h3>
+  <p>Cada lectura és la mitjana de 8 mostres consecutives, per reduir el soroll. Les lectures fora de l'interval de 1000 a 3000 es consideren invàlides i es manté l'últim valor correcte. Al braç, el servo no salta a la nova posició: a cada trama avança només una quarta part de la diferència amb l'objectiu, i el moviment resulta més suau.</p>
+</section>
+
+<section id="imu">
+  <h2>06. IMU MPU6050: rotació del canell</h2>
+  <div class="grid2 mid-al">
+    <figure class="card fig"><img class="zoom" src="img/imu.jpg" alt="Mòdul GY-521 amb MPU6050"><figcaption class="mono">Mòdul GY-521 amb MPU6050, connectat a l'ESP32 per I2C.</figcaption></figure>
+    <div>
+      <p class="lead" style="margin-bottom:.8rem">La rotació del canell es mesura amb una IMU, que combina un giroscopi i un acceleròmetre de tres eixos.</p>
+      <p>El camí fins a un angle fiable va tenir cinc etapes. Segueix-les una per una amb els botons.</p>
+    </div>
+  </div>
+  <div class="stepper card" id="imu-st">
+    <div class="st-nav"><button>1 Graus amb el giroscopi</button><button>2 La deriva</button><button>3 Filtre complementari</button><button>4 El salt de 180°</button><button>5 Unwrapping</button></div>
+    <div class="st-bar"><i></i></div>
+
+    <div class="st-p">
+      <h3>1. Com obtinc els graus amb el giroscopi</h3>
+      <p>El giroscopi no mesura l'angle, sinó la <b>velocitat angular</b>: quant de pressa gira el sensor. Es va configurar al rang de ±250 °/s, perquè el canell humà no supera aquesta velocitat i així s'obté la màxima resolució: 131 unitats per cada °/s. Per arribar als graus es segueixen quatre passos: llegir el valor cru <code>gx</code>, restar-ne el biaix mesurat amb el sensor en repòs, dividir entre 131 per tenir °/s, i <b>integrar</b> la velocitat en el temps, és a dir, sumar a cada pas ω·dt a l'angle anterior.</p>
+      <p class="eq">ω = (gx − offset) / 131 &nbsp;&nbsp; roll_gyro = roll + ω · dt</p>
+      <div class="gal">
+        <figure class="fig"><img class="zoom" src="img/gyro-raw.png" alt="Lectura crua del giroscopi"><figcaption class="mono">1. Lectura crua gx (LSB)</figcaption></figure>
+        <figure class="fig"><img class="zoom" src="img/gyro-omega.png" alt="Velocitat angular"><figcaption class="mono">2. Velocitat angular ω (°/s)</figcaption></figure>
+        <figure class="fig"><img class="zoom" src="img/gyro-angle.png" alt="Angle obtingut en integrar"><figcaption class="mono">3. Angle en integrar ω</figcaption></figure>
       </div>
     </div>
 
-    <!-- Scroll Indicator -->
-    <a href="#content-start" class="scroll-indicator">
-      <span>SCROLL DOWN FOR MORE INFO</span>
-      <div class="arrow-down">↓</div>
-    </a>
-  </header>
+    <div class="st-p">
+      <h3>2. El giroscopi té un problema: la deriva</h3>
+      <p>L'angle obtingut és molt suau a curt termini, però acumula error amb el temps. Fins i tot imprecisions petites, com 0,1 °/s amb el sensor quiet, es van sumant a cada iteració. A la gràfica el sensor estava completament immòbil, sense cap gir del canell, i tot i això l'angle calculat s'allunya uns <b>3,5°</b> en uns quinze minuts. Amb una prova més llarga la desviació seria encara més gran. El giroscopi sol no és suficient per tenir una mesura estable a llarg termini.</p>
+      <figure class="fig"><img class="zoom" src="img/deriva.png" alt="Deriva del giroscopi amb el sensor quiet"><figcaption class="mono">Angle només amb el giroscopi, amb el sensor immòbil: la deriva creix amb el temps.</figcaption></figure>
+    </div>
 
-  <!-- Main Layout -->
-  <div id="content-start" class="layout-container container">
-    
-    <!-- Persistent Sidebar Navigation -->
-    <aside class="sidebar">
-      <nav id="scrollspy-menu">
-        <p class="menu-title">INDEX</p>
-        <ul>
-          <li><a href="#objectives" class="nav-link active">01. Objectives</a></li>
-          <li><a href="#system-overview" class="nav-link">02. System Overview</a></li>
-          <li><a href="#mechanical-design" class="nav-link">03. Mechanical Design</a></li>
-          <li><a href="#glove-sensor" class="nav-link">04. Sensorized Glove</a></li>
-          <li><a href="#flex-sensor" class="nav-link">05. Flex Sensor Acquisition</a></li>
-          <li><a href="#imu-mpu6050" class="nav-link">06. MPU6050 IMU</a></li>
-          <li><a href="#pcb-design" class="nav-link">07. PCB Design & Hardware</a></li>
-          <li><a href="#power-supply" class="nav-link">08. Power Supply Scheme</a></li>
-          <li><a href="#bluetooth-comm" class="nav-link">09. BT Communication</a></li>
-          <li><a href="#challenges" class="nav-link">10. Challenges & Solutions</a></li>
-          <li><a href="#source-code" class="nav-link">11. Source Code</a></li>
-          <li><a href="#bill-of-materials" class="nav-link">12. Bill of Materials</a></li>
-        </ul>
-      </nav>
-    </aside>
+    <div class="st-p">
+      <h3>3. Afegeixo l'acceleròmetre i un filtre complementari</h3>
+      <p>L'acceleròmetre dona un angle absolut respecte a la gravetat, calculat amb l'arctangent de dues de les seves components. No té deriva, però és sorollós i es veu afectat per les acceleracions lineals. Per aprofitar el millor de cada sensor vaig aplicar un <b>filtre complementari</b>: el giroscopi domina el comportament ràpid i suau, i l'acceleròmetre corregeix lentament l'error acumulat.</p>
+      <p class="eq">roll_acc = atan2(ay, az) &nbsp;&nbsp; roll = 0,98 · roll_gyro + 0,02 · roll_acc</p>
+      <figure class="fig"><img class="zoom" src="img/filtro.png" alt="Sortida del filtre complementari"><figcaption class="mono">Angle després del filtre, amb el sensor quiet: es manté estable i sense deriva.</figcaption></figure>
+    </div>
 
-    <!-- Content Area -->
-    <main class="main-content">
+    <div class="st-p">
+      <h3>4. Un nou problema: el salt de 180° a −179°</h3>
+      <p>En provar el sistema amb el servo va aparèixer un comportament estrany: en arribar a uns 179°, l'angle passava de cop a −179° i el servo feia un moviment brusc en sentit contrari al gir real. No era un error de mesura, sinó que cada sensor representa l'angle amb un rang diferent. El giroscopi s'integra de manera contínua i pot passar de 180°, mentre que l'acceleròmetre, en usar <code>atan2</code>, queda sempre entre −180° i 180°. Una mateixa posició pot ser 181° per a un sensor i −179° per a l'altre.</p>
+      <figure class="fig"><img class="zoom" src="img/salto-roll.png" alt="Angle de l'acceleròmetre i angle filtrat amb el salt a ±180°"><figcaption class="mono">L'angle de l'acceleròmetre (blau) canvia de signe en creuar ±180° mentre que el filtrat (taronja) continua creixent.</figcaption></figure>
+    </div>
 
-      <!-- 01. OBJECTIVES -->
-      <section id="objectives" class="content-section">
-        <h2 class="section-title">01. Project Objectives</h2>
-        <div class="grid-2">
-          <div class="block-item">
-            <span class="block-tag">GENERAL OBJECTIVE</span>
-            <p>Replicate human hand and wrist dynamics on an anthropomorphic robotic arm in real time with minimum latency.</p>
-          </div>
-          <div class="block-item">
-            <span class="block-tag">SPECIFIC OBJECTIVES</span>
-            <ul class="styled-list">
-              <li><strong>Fingers:</strong> Individual flexion and extension control for each digit.</li>
-              <li><strong>Wrist:</strong> Precise rotation control (pronation / supination).</li>
-              <li><strong>Wireless:</strong> Low-latency communication link using Bluetooth SPP.</li>
-            </ul>
-          </div>
-        </div>
-      </section>
+    <div class="st-p">
+      <h3>5. La solució: angle unwrapping abans del filtre</h3>
+      <p>Abans d'aplicar el filtre es compara l'angle de l'acceleròmetre amb el del giroscopi. Si la diferència supera ±180°, tots dos representen la mateixa orientació en voltes diferents, i s'hi suma o resta una volta completa (360°) per alinear-los.</p>
+      <p class="eq">Δ = roll_acc − roll_gyro &nbsp;&nbsp; si Δ &gt; 180° → roll_acc − 360° &nbsp;&nbsp; si Δ &lt; −180° → roll_acc + 360°</p>
+      <p>Així l'angle és continu i estable fins i tot en passar de ±180°. Abans d'enviar-lo al servo es limita entre 0° i 180° i s'escala amb un factor d'1,82 per adaptar el rang detectat per la IMU al recorregut del servo. Quan el gir real supera els 180° el valor se satura al màxim, i el mateix passa per sota de 0°. El servo mai fa moviments bruscos ni inversions.</p>
+      <figure class="fig"><img class="zoom" src="img/roll-correcte.png" alt="Angle de roll final entre 0° i 180°"><figcaption class="mono">Angle final després del filtre i la correcció: limitat entre 0° i 180°, sense salts.</figcaption></figure>
+    </div>
+    <div class="st-ctl"><button class="btn st-prev">&larr; Anterior</button><button class="btn st-next">Següent &rarr;</button></div>
+  </div>
+</section>
 
-      <!-- 02. SYSTEM OVERVIEW -->
-      <section id="system-overview" class="content-section">
-        <h2 class="section-title">02. System Overview</h2>
-        <div class="flow-layout">
-          <div class="flow-col">
-            <span class="flow-tag">MOTION CAPTURE</span>
-            <div class="block-item flow-box">
-              <h4>Finger Flexion</h4>
-              <p>Flex Sensors Array</p>
-            </div>
-            <div class="block-item flow-box">
-              <h4>Wrist Rotation</h4>
-              <p>IMU - MPU6050</p>
-            </div>
-          </div>
-
-          <div class="flow-col flow-center">
-            <div class="block-item center-box">
-              <h3>BLUETOOTH SPP</h3>
-              <p>Wireless Bridge</p>
-              <small>10 Hz Data Rate</small>
-            </div>
-          </div>
-
-          <div class="flow-col">
-            <span class="flow-tag">ACTUATION & REPRODUCTION</span>
-            <div class="block-item flow-box">
-              <h4>Finger Motion</h4>
-              <p>Servos + Tension Lines</p>
-            </div>
-            <div class="block-item flow-box">
-              <h4>Wrist Motion</h4>
-              <p>Servo + Gear Train</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- 03. MECHANICAL DESIGN -->
-      <section id="mechanical-design" class="content-section">
-        <h2 class="section-title">03. Arm Mechanical Design</h2>
-        <div class="steps-grid-4">
-          <div class="step-box">
-            <div class="step-num">01. INITIAL BASE</div>
-            <h4>InMoov Forearm</h4>
-            <p>Selected base frame for the forearm structure. Previous tests showed reliability issues with the default InMoov hand assembly.</p>
-            <div class="img-container">
-              <img src="img/inmoov.jpg" alt="InMoov Forearm" onerror="this.parentNode.innerHTML='[InMoov Forearm Image]'">
-            </div>
-          </div>
-
-          <div class="step-box">
-            <div class="step-num">02. HAND SELECTION</div>
-            <h4>FlexyHand Design</h4>
-            <p>Replaced with FlexyHand mechanism for greater structural strength, simplified joint linkage, and higher durability.</p>
-            <div class="img-container">
-              <img src="img/flexyhand.jpg" alt="FlexyHand" onerror="this.parentNode.innerHTML='[FlexyHand Image]'">
-            </div>
-          </div>
-
-          <div class="step-box">
-            <div class="step-num">03. CAD REDESIGN</div>
-            <h4>Custom Mounts</h4>
-            <p>Designed custom 3D-printed coupling joints to seamlessly merge the FlexyHand with the InMoov arm chassis.</p>
-            <div class="img-container">
-              <img src="img/anclajes.jpg" alt="CAD Coupling Joints" onerror="this.parentNode.innerHTML='[CAD Assembly Image]'">
-            </div>
-          </div>
-
-          <div class="step-box">
-            <div class="step-num">04. FINAL RESULT</div>
-            <h4>Assembled Arm</h4>
-            <p>Complete 3D-printed integration resulting in a robust and reliable mechanical platform for actuation.</p>
-            <div class="img-container">
-              <img src="img/brazo_final.jpg" alt="Assembled Arm" onerror="this.parentNode.innerHTML='[Final Robotic Arm Image]'">
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- 04. SENSORIZED GLOVE -->
-      <section id="glove-sensor" class="content-section">
-        <h2 class="section-title">04. Sensorized Glove: Motion Capture</h2>
-        <div class="annotated-image-container">
-          <div class="guante-img-wrapper">
-            <img src="img/guante_diagrama.jpg" alt="Sensorized Glove" onerror="this.parentNode.innerHTML='<div class=\"mock-photo\">[Glove Hardware Diagram Image]</div>'">
-            
-            <div class="annotation-box box-flex">
-              <strong>Flex Sensor:</strong> Measures individual finger deflection angle.
-            </div>
-
-            <div class="annotation-box box-mpu">
-              <strong>MPU6050 IMU:</strong> Tracks wrist pitch and roll orientation.
-            </div>
-
-            <div class="annotation-box box-caja">
-              <strong>Control Box:</strong> ESP32 MCU, 9V Battery, and Custom PCB.
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- 05. FLEX SENSOR -->
-      <section id="flex-sensor" class="content-section">
-        <h2 class="section-title">05. Flex Sensor: Acquisition & Angle Mapping</h2>
-        <div class="grid-2">
-          <div class="block-item">
-            <h4>Voltage Divider & Mapping</h4>
-            <p>Resistance changes from bending are converted into an analog voltage read by the ESP32 ADC. Linear mapping maps raw ADC data directly to servo positioning:</p>
-            <pre><code>map(flexVal, minFlex, maxFlex, 180, 0)</code></pre>
-            <small>* flexVal: Current ADC reading.<br>* minFlex / maxFlex: Calibrated bend extremes.</small>
-          </div>
-          <div class="block-item">
-            <h4>ADC vs. Angle Response</h4>
-            <canvas id="chartFlex" height="150"></canvas>
-          </div>
-        </div>
-      </section>
-
-      <!-- 06. MPU6050 -->
-      <section id="imu-mpu6050" class="content-section">
-        <h2 class="section-title">06. Inertial Measurement Unit: MPU6050</h2>
-        <div class="grid-2 mb-1">
-          <div class="block-item">
-            <h4>1. Gyroscope Angle Integration</h4>
-            <p>The gyroscope measures angular velocity ($\omega$). Integrating over time provides the tilt angle ($\theta$):</p>
-            <pre><code>Angle_gyro += Gyro_rate * dt</code></pre>
-            <p><strong>Drift Problem:</strong> Accumulating small sensor errors causes the calculated angle to drift continuously over time even when stationary.</p>
-          </div>
-          <div class="block-item">
-            <h4>2. Solution: Complementary Filter</h4>
-            <p>Combines fast gyroscope response with long-term accelerometer stability to eliminate drift:</p>
-            <div class="formula-box">
-              <code>roll = 0.98 * roll_gyro + 0.02 * roll_acc</code>
-            </div>
-            <p>Delivers a stable and noise-free angle reading without significant lag.</p>
-          </div>
-        </div>
-        <div class="block-item">
-          <h4>Response Comparison: Gyro Drift vs. Filtered Angle</h4>
-          <canvas id="chartIMU" height="120"></canvas>
-        </div>
-      </section>
-
-      <!-- 07. PCB DESIGN -->
-      <section id="pcb-design" class="content-section">
-        <h2 class="section-title">07. Custom PCB Design & Electronics</h2>
-        <p class="mb-1">To eliminate loose wiring and guarantee reliable signal integrity, two custom PCBs were designed using <strong>KiCad</strong>.</p>
-        
-        <div class="grid-2 mb-1">
-          <div class="block-item">
-            <h4>Transmitter PCB (Glove)</h4>
-            <p>Houses voltage dividers for 5 Flex Sensors, I2C routing for MPU6050, power regulation, and socket mount for the ESP32 transmitter.</p>
-          </div>
-          <div class="block-item">
-            <h4>Receiver PCB (Arm)</h4>
-            <p>Routes PWM signals to 6 high-torque servos with wider copper traces designed to handle peak currents.</p>
-          </div>
-        </div>
-
-        <h3>Manufacturing & Assembly Workflow</h3>
-        <div class="grid-3">
-          <div class="block-item">
-            <h4>1. Schematic & Layout</h4>
-            <p>KiCad schematic design and layout optimization to minimize noise on analog signals.</p>
-            <div class="img-container">[KiCad Board Layout]</div>
-          </div>
-          <div class="block-item">
-            <h4>2. Fabricated Board</h4>
-            <p>FR-4 PCB fabrication with silkscreen component labels for clean assembly.</p>
-            <div class="img-container">[Bare PCB Photo]</div>
-          </div>
-          <div class="block-item">
-            <h4>3. Soldering & Verification</h4>
-            <p>Through-hole/SMD soldering and continuity testing before final deployment.</p>
-            <div class="img-container">[Assembled PCB Photo]</div>
-          </div>
-        </div>
-      </section>
-
-      <!-- 08. POWER SUPPLY -->
-      <section id="power-supply" class="content-section">
-        <h2 class="section-title">08. Power Supply Scheme</h2>
-        <div class="grid-3">
-          <div class="block-item">
-            <h4>Glove Electronics</h4>
-            <p>Rechargeable 9V battery feeding the onboard ESP32 linear regulator.</p>
-            <div class="img-container">[9V Battery Mount Photo]</div>
-          </div>
-          <div class="block-item">
-            <h4>Receiver Logic</h4>
-            <p>Dual 18650 Li-Ion cells in series (7.4V nominal) dedicated to the ESP32 receiver.</p>
-            <div class="img-container">[18650 Pack Photo]</div>
-          </div>
-          <div class="block-item">
-            <h4>Servo Actuators</h4>
-            <p>Regulated DC supply set to 6.4V supplying high surge currents up to 5A.</p>
-            <div class="img-container">[Bench Power Supply Photo]</div>
-          </div>
-        </div>
-      </section>
-
-      <!-- 09. BLUETOOTH COMM -->
-      <section id="bluetooth-comm" class="content-section">
-        <h2 class="section-title">09. Bluetooth Communication</h2>
-        <div class="block-item">
-          <ul class="styled-list">
-            <li><strong>Protocol:</strong> Bluetooth SPP (Serial Port Profile) in <strong>Client (Glove) ➔ Server (Arm)</strong> architecture.</li>
-            <li><strong>Transmission Rate:</strong> 10 Hz (1 packet / 100 ms) preventing buffer saturation and packet drop.</li>
-            <li><strong>Data Format:</strong> Formatted string payload with custom delimiters.</li>
-          </ul>
-          <div class="payload-box">
-            <code>&lt;flex1&gt; &lt;flex2&gt; &lt;flex3&gt; &lt;flex4&gt; &lt;flex5&gt; &lt;wrist_angle&gt;</code>
-          </div>
-        </div>
-      </section>
-
-      <!-- 10. CHALLENGES & SOLUTIONS -->
-      <section id="challenges" class="content-section">
-        <h2 class="section-title">10. Challenges & Technical Solutions</h2>
-        <div class="grid-3">
-          <div class="block-item text-center">
-            <span class="badge-black">POWER</span>
-            <h4>Servo Noise & Brownouts</h4>
-            <p class="issue"><strong>Issue:</strong> High current spikes caused unexpected microcontroller resets.</p>
-            <p class="solution"><strong>Solution:</strong> Completely isolated power rails for servos and MCU.</p>
-          </div>
-
-          <div class="block-item text-center">
-            <span class="badge-black">IMU</span>
-            <h4>Gyroscope Drift & Discontinuity</h4>
-            <p class="issue"><strong>Issue:</strong> Accumulated position error and ±180° flip jumps.</p>
-            <p class="solution"><strong>Solution:</strong> Implemented complementary filtering and angle unwrapping.</p>
-          </div>
-
-          <div class="block-item text-center">
-            <span class="badge-black">CAD</span>
-            <h4>Joint Rigidity</h4>
-            <p class="issue"><strong>Issue:</strong> Rigid PLA printed fingers resisted bending motion.</p>
-            <p class="solution"><strong>Solution:</strong> Reprinted joint sections in flexible TPU filament.</p>
-          </div>
-        </div>
-      </section>
-
-      <!-- 11. SOURCE CODE -->
-      <section id="source-code" class="content-section">
-        <h2 class="section-title">11. Source Code</h2>
-        <div class="code-wrapper">
-          <div class="code-header">
-            <span>receiver_arm.ino</span>
-            <button class="btn-copy" onclick="copyCode()">Copy Code</button>
-          </div>
-          <pre><code id="codeBlock">#include &lt;BluetoothSerial.h&gt;
-#include &lt;ESP32Servo.h&gt;
-
-BluetoothSerial SerialBT;
-Servo servos[5];
-Servo wristServo;
-
-const int servoPins[5] = {13, 12, 14, 27, 26};
-const int wristPin = 25;
-
-void setup() {
-  Serial.begin(115200);
-  SerialBT.begin("ESP32_Arm_Receiver");
-  
-  for(int i = 0; i < 5; i++) {
-    servos[i].attach(servoPins[i]);
-  }
-  wristServo.attach(wristPin);
-}
-
-void loop() {
-  if (SerialBT.available()) {
-    String data = SerialBT.readStringUntil('\n');
-    int f1, f2, f3, f4, f5, wrist;
-    if (sscanf(data.c_str(), "%d %d %d %d %d %d", &f1, &f2, &f3, &f4, &f5, &wrist) == 6) {
-      servos[0].write(f1);
-      servos[1].write(f2);
-      servos[2].write(f3);
-      servos[3].write(f4);
-      servos[4].write(f5);
-      wristServo.write(wrist);
-    }
-  }
-}</code></pre>
-        </div>
-      </section>
-
-      <!-- 12. BILL OF MATERIALS -->
-      <section id="bill-of-materials" class="content-section">
-        <h2 class="section-title">12. Bill of Materials & Costs</h2>
-        <div class="block-item">
-          <input type="text" id="searchInput" onkeyup="filterComponents()" placeholder="Search components...">
-          <div class="table-responsive mt-1">
-            <table id="componentsTable">
-              <thead>
-                <tr>
-                  <th>Component</th>
-                  <th>Qty</th>
-                  <th>Unit Price (€)</th>
-                  <th>Total (€)</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>ESP32-WROOM-32D Development Board</td>
-                  <td>2</td>
-                  <td>6.50</td>
-                  <td>13.00</td>
-                </tr>
-                <tr>
-                  <td>2.2" Flex Sensors</td>
-                  <td>5</td>
-                  <td>12.00</td>
-                  <td>60.00</td>
-                </tr>
-                <tr>
-                  <td>MPU6050 6-DOF IMU Module</td>
-                  <td>1</td>
-                  <td>3.50</td>
-                  <td>3.50</td>
-                </tr>
-                <tr>
-                  <td>MG996R High-Torque Servos</td>
-                  <td>6</td>
-                  <td>7.80</td>
-                  <td>46.80</td>
-                </tr>
-                <tr>
-                  <td>PLA / TPU 3D Printing Filament (1kg)</td>
-                  <td>2</td>
-                  <td>20.00</td>
-                  <td>40.00</td>
-                </tr>
-                <tr>
-                  <td>18650 Li-Ion Cells + 9V Battery</td>
-                  <td>1</td>
-                  <td>15.00</td>
-                  <td>15.00</td>
-                </tr>
-                <tr>
-                  <td>Custom KiCad PCBs + Miscellany</td>
-                  <td>1</td>
-                  <td>10.00</td>
-                  <td>10.00</td>
-                </tr>
-              </tbody>
-              <tfoot>
-                <tr class="total-row">
-                  <td colspan="3"><strong>Total Estimated Cost</strong></td>
-                  <td><strong>188.30 €</strong></td>
-                </tr>
-              </tfoot>
-            </table>
-          </div>
-        </div>
-      </section>
-
-    </main>
+<section id="pcb">
+  <h2>07. Disseny i fabricació de les plaques</h2>
+  <p class="lead">Per organitzar les connexions es van dissenyar i fabricar dues plaques de circuit imprès (PCB) a mida, una per al guant i una per al braç. El disseny es va fer amb KiCad.</p>
+  <h3>Què fa cada placa</h3>
+  <div class="grid2">
+    <div class="card"><h3>PCB del guant: condicionament dels senyals</h3><p>Agrupa les connexions dels cinc sensors de flexió i les cinc resistències de 47 kΩ dels divisors de tensió, que adapten la resistència variable del sensor a l'entrada analògica de la Wemos. Porta un connector per a cada sensor i un connector de nou pins cap a la Wemos D1 R32, amb dos pins de GND i dos de 3,3 V.</p></div>
+    <div class="card"><h3>PCB del braç: interfície de potència</h3><p>Centralitza en un sol punt les connexions dels sis servomotors amb la Wemos. Els servos comparteixen alimentació i massa, i la senyal PWM de cadascun va a una sortida de la Wemos. Inclou un condensador de desacoblament a la línia d'alimentació per absorbir els pics de corrent dels servos.</p></div>
   </div>
 
-  <script src="script.js"></script>
+  <h3>Del disseny a la placa soldada</h3>
+  <p>Cada placa va passar pel mateix procés: es dibuixa l'esquema de connexions, es passa a KiCad, es tracen les pistes i, finalment, es fabrica la placa i es solden els components a mà. Tria la placa i avança pas a pas.</p>
+  <div class="card" data-tabs>
+    <div class="tabs"><button class="tab on" data-k="g">PCB del guant</button><button class="tab" data-k="b">PCB del braç</button></div>
+    <div class="tp on" data-p="g"><div class="stepper" id="pcb-g"></div></div>
+    <div class="tp" data-p="b"><div class="stepper" id="pcb-b"></div></div>
+  </div>
+
+  <h3>Problemes i millores</h3>
+  <div class="acc"><button class="acc-h">Pistes massa fines i pla de massa</button><div class="acc-b"><div><p>A la primera versió algunes pistes eren massa fines i el pla de massa de la cara superior no es va imprimir. Es va fer una segona versió de la placa amb pistes més amples. El pla de massa també va dificultar la soldadura: el coure escampava la calor i l'estany, i costava obtenir un acabat net.</p></div></div></div>
+  <div class="acc"><button class="acc-h">Millores previstes</button><div class="acc-b"><div><p>Dissenyar la placa perquè es munti des d'una sola cara, amb vies per passar determinades connexions a l'altra capa. Així no cal fer tot el traçat de GND a la mateixa capa que les pistes d'alimentació i senyal. A la PCB del braç, fer que les interferències dels servos no afectin el microcontrolador permetria usar una sola alimentació.</p></div></div></div>
+
+  <h3>Alimentació del sistema</h3>
+  <p>El sistema usa fonts d'alimentació separades per al microcontrolador i per als actuadors, per evitar caigudes de tensió i interferències causades pel consum elevat dels servomotors. En les primeres proves, quan es movien diversos servos alhora, la Wemos es reiniciava. Les masses (GND) de totes les parts es mantenen connectades, perquè els senyals PWM necessiten una referència elèctrica comuna.</p>
+  <div class="pow">
+    <figure class="card fig"><img class="zoom" src="img/alim-guant.jpg" alt="Foto pendent: alimentació del guant (img/alim-guant.jpg)"><figcaption><b>Placa del guant</b><br>Pila recarregable de Li-ion de 5500 mAh, com a font de 9 V.</figcaption></figure>
+    <figure class="card fig"><img class="zoom" src="img/alim-brac.jpg" alt="Foto pendent: alimentació de la placa del braç (img/alim-brac.jpg)"><figcaption><b>Placa del braç</b><br>Dues piles Li-ion 18650 de 3,2 V en sèrie, uns 6,4 V nominals.</figcaption></figure>
+    <figure class="card fig"><img class="zoom" src="img/alim-servos.jpg" alt="Foto pendent: font dels servos (img/alim-servos.jpg)"><figcaption><b>Servomotors</b><br>Font de laboratori Promax FAC-363B a 6,5 V. Consum màxim d'uns 1,6 A amb els sis servos.</figcaption></figure>
+  </div>
+  <p class="gnd mono">GND comú entre les tres parts</p>
+</section>
+
+<section id="bluetooth">
+  <h2>08. Comunicació i protocol Bluetooth</h2>
+  <p class="lead">Els dos ESP32 es comuniquen amb Bluetooth clàssic en mode SPP (<i>Serial Port Profile</i>), un enllaç sèrie transparent entre les dues plaques. És una solució senzilla, amb latència reduïda i velocitat suficient per a aquestes dades.</p>
+  <div class="bt">
+    <div class="card"><h4>ESP32 del guant</h4><p><b>Client.</b> Llegeix els sensors, crea la trama i l'envia. Es connecta al servidor amb la seva adreça MAC i, un cop establert l'enllaç, comença la transmissió.</p></div>
+    <div class="arrow" aria-hidden="true">&rarr;</div>
+    <div class="card"><h4>ESP32 del braç</h4><p><b>Servidor.</b> Espera la connexió, rep la trama, n'extreu els valors i mou els servos.</p></div>
+  </div>
+  <h3>La trama de dades</h3>
+  <p>El guant envia una línia de text cada 100 ms, és a dir, a 10 Hz. Així no se satura el canal i es redueix la probabilitat de perdre dades. Cada trama porta sis valors separats per espais i acaba amb un salt de línia. Clica cada valor per veure què significa.</p>
+  <div class="frame" id="frame"></div>
+  <div class="card" id="fdet" aria-live="polite"></div>
+  <p style="margin-top:1rem">El format de text simple facilita la depuració amb el monitor sèrie i permet que el receptor interpreti les dades de manera robusta: si una línia no es pot llegir, simplement s'ignora.</p>
+</section>
+
+<section id="material">
+  <h2>09. Llista de materials i pressupost</h2>
+  <p class="lead">Components i materials utilitzats al projecte. Es poden cercar pel nom i els preus es poden editar; el cost total s'actualitza sol.</p>
+  <div class="total"><span class="mono">Cost estimat del projecte</span><b id="grand"></b></div>
+  <div class="mat-bar">
+    <input id="q" type="search" placeholder="Cerca un component pel nom" aria-label="Cerca un component">
+    <div class="chips" id="chips"></div>
+  </div>
+  <div class="tbl"><table id="mt">
+    <thead><tr><th>Component</th><th>Categoria</th><th>Qtt</th><th>Preu unitari (€)</th><th>Subtotal</th></tr></thead>
+    <tbody></tbody>
+    <tfoot><tr><td colspan="4">Total dels resultats</td><td id="tot"></td></tr></tfoot>
+  </table></div>
+  <p class="mono">Preus orientatius. Els canvis es desen al teu navegador.</p>
+</section>
+
+</main>
+</div>
+
+<div id="lb" hidden>
+  <button id="lb-x" aria-label="Tanca">&times;</button>
+  <img id="lb-img" alt="">
+  <span class="mono">Roda: zoom · Arrossega: mou · Esc: tanca</span>
+</div>
 </body>
 </html>
